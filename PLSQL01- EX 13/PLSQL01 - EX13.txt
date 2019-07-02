@@ -1,0 +1,36 @@
+
+CREATE DIRECTORY MY_DIR AS 'C:/testFile' ;
+
+
+DECLARE
+--create a file pointer type variable
+v_os_touch_file		UTL_FILE.FILE_TYPE;
+in_file			VARCHAR2(50) := 'RichestEmployee.txt';
+
+firstName VARCHAR2(20);
+lastName VARCHAR2(20);
+empSalary EMPLOYEES.SALARY % TYPE;
+  
+BEGIN
+
+    SELECT first_name, last_name, salary INTO firstName,lastName,empSalary
+       FROM employees WHERE salary = (SELECT MAX(salary) FROM employees);
+
+    v_os_touch_file	:= UTL_FILE.FOPEN('MY_DIR', in_file, 'w');
+
+
+	UTL_FILE.PUT_LINE(v_os_touch_file, '<-Information of Richest Employee->');
+    UTL_FILE.PUT_LINE(v_os_touch_file, '');
+    UTL_FILE.PUT_LINE(v_os_touch_file, '  First Name --> '||firstName );
+    UTL_FILE.PUT_LINE(v_os_touch_file, '  Last Name  --> '   || lastName);
+    UTL_FILE.PUT_LINE(v_os_touch_file, '  Salary     --> ' || empSalary );
+
+
+--close the file pointer
+UTL_FILE.FCLOSE(v_os_touch_file);
+	
+dbms_output.put_line('S U C C E S S ! !   Check file content now.');
+
+END;
+
+

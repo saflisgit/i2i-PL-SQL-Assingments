@@ -1,0 +1,34 @@
+CREATE OR REPLACE PACKAGE write_employees_to_file IS
+PROCEDURE write_all_employees(pis_file_name VARCHAR2, pis_directory_name VARCHAR2);
+END write_employees_to_file;
+
+CREATE OR REPLACE PACKAGE BODY write_employees_to_file
+IS
+PROCEDURE write_all_employees(pis_file_name IN VARCHAR2, pis_directory_name VARCHAR2)
+IS
+v_os_touch_file		UTL_FILE.FILE_TYPE;
+CURSOR all_employees IS SELECT * FROM employees ORDER BY employee_id;
+BEGIN
+    v_os_touch_file	:= UTL_FILE.FOPEN(pis_directory_name, pis_file_name, 'w');
+    
+    FOR employee IN all_employees
+    LOOP
+        UTL_FILE.PUT(v_os_touch_file, 'ID -->> ' || employee.employee_id);
+        UTL_FILE.PUT(v_os_touch_file, ' EMP NAME--> ' || employee.first_name || '-' || employee.last_name);
+        UTL_FILE.PUT(v_os_touch_file, ' DepartmentID -->> ' || employee.employee_id);
+        UTL_FILE.PUT(v_os_touch_file, ' SALARY -->> ' || employee.salary);
+        UTL_FILE.PUT_LINE(v_os_touch_file, ' ');
+    END LOOP;
+    
+    UTL_FILE.PUT_LINE(v_os_touch_file, '<TOTAL NUMBER OF EMPLOYEES>  ');
+    UTL_FILE.FCLOSE(v_os_touch_file);
+END write_all_employees;
+
+BEGIN	
+dbms_output.put_line('Control is now executing the package initialization part');
+END write_employees_to_file;
+/
+
+CREATE DIRECTORY MY_DIR AS 'C:/testFile' ;
+
+exec write_employees_to_file.write_all_employees('allEmployees.txt' , 'MY_DIR');
